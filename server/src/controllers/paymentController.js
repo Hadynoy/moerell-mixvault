@@ -13,10 +13,20 @@ export async function createPayment(req, res) {
       userMobile: "08000000000",
     });
 
+    if (payment?.code !== "00000") {
+      console.error("OPay create payment failed:", payment);
+
+      return res.status(400).json({
+        success: false,
+        message: payment?.message || "Unable to create payment.",
+      });
+    }
+
     res.json({
       success: true,
       reference,
       payment,
+      cashierUrl: payment.data.cashierUrl,
     });
   } catch (error) {
     console.error(
