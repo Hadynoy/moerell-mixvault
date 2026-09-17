@@ -70,7 +70,7 @@ export async function createPayment(req, res) {
     const payment = await createOpayPayment({
       reference,
       amount: 100000,
-      returnUrl: `${process.env.FRONTEND_URL}/payment-result`,
+      returnUrl: `${process.env.FRONTEND_URL}/payment/success`,
       userName: "Moerell Customer",
       userEmail: "customer@example.com",
       userMobile: "08000000000",
