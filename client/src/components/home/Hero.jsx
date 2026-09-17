@@ -4,6 +4,34 @@ import Adi from "../../assets/images/Adi.PNG";
 function Hero() {
   const [isOpen, setIsOpen] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
+
+const handlePayment = async () => {
+  try {
+    setIsLoading(true);
+
+    const response = await fetch("/api/payments/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success || !data.cashierUrl) {
+      throw new Error(data.message || "Unable to start payment.");
+    }
+
+    window.location.href = data.cashierUrl;
+  } catch (error) {
+    console.error("Payment error:", error);
+    alert(error.message || "Unable to start payment.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
   return (
     <>
       <section
@@ -106,11 +134,13 @@ function Hero() {
             </p>
 
             <button
-              type="button"
-              className="mt-7 w-full rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
-            >
-              Continue to OPay
-            </button>
+  type="button"
+  onClick={handlePayment}
+  disabled={isLoading}
+  className="mt-7 w-full rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {isLoading ? "Connecting to OPay..." : "Continue to OPay"}
+</button>
 
             <p className="mt-4 text-center text-xs text-white/30">
               Secure payment powered by OPay
