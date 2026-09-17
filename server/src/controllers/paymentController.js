@@ -1,8 +1,67 @@
 import crypto from "crypto";
+import { get } from "@vercel/blob";
 import {
   createOpayPayment,
   queryOpayPaymentStatus,
 } from "../services/opayService.js";
+
+export async function downloadMix(req, res) {
+  try {
+    const { reference } = req.params;
+
+    if (!reference) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment reference is required.",
+      });
+    }
+
+    const paymentStatus = await queryOpayPaymentStatus(reference);
+
+    if (
+      paymentStatus?.code !== "00000" ||
+      paymentStatus?.data?.status !== "SUCCESS"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Payment has not been verified.",
+      });
+    }
+
+    const result = await get("Moerell-Piano Wave.mp3", {
+      access: "private",
+    });
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: "Mix not found.",
+      });
+    }
+
+    res.setHeader(
+      "Content-Type",
+      result.blob.contentType || "audio/mpeg"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="Moerell-Piano Wave.mp3"'
+    );
+
+    result.stream.pipe(res);
+  } catch (error) {
+    console.error(
+      "Mix download error:",
+      error.message
+    );
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to download mix.",
+    });
+  }
+}
 
 export async function createPayment(req, res) {
   try {

@@ -5,5 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "npm install --prefix client && npm install --prefix server && npm run build --prefix client"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.8.0"
   }
 }
